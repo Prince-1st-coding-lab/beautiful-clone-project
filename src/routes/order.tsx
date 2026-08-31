@@ -176,47 +176,64 @@ function OrderPage() {
 
       {!confirmed ? (
         <div className="space-y-8 px-4 py-6 pb-32">
-          {/* Products */}
+          {/* Cart */}
           <section>
-            <h1 className="font-serif text-2xl font-bold">Choose your products</h1>
+            <h1 className="font-serif text-2xl font-bold">Your cart</h1>
             <p className="mb-4 text-xs text-muted-foreground">
-              Tap + to add items. Delivery in Kigali is {formatRwf(DELIVERY_FEE)}.
+              Delivery in Kigali is {formatRwf(DELIVERY_FEE)}.
             </p>
             {isLoading && <Loader2 className="size-5 animate-spin text-primary" />}
-            <div className="flex flex-col gap-3">
-              {catalog.map((item) => {
-                const qty = quantities[item.id] ?? 0;
-                return (
+            {!isLoading && selected.length === 0 ? (
+              <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border p-8 text-center">
+                <ShoppingBag className="size-7 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">Your cart is empty.</p>
+                <Link
+                  to="/shop"
+                  className="rounded-full bg-primary px-6 py-3 text-xs font-bold uppercase tracking-wide text-primary-foreground"
+                >
+                  Browse the shop
+                </Link>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {selected.map(({ item, qty }) => (
                   <div
                     key={item.id}
-                    className={`flex gap-3 rounded-2xl border bg-card p-3 transition-colors ${
-                      qty > 0 ? "border-primary" : "border-border"
-                    }`}
+                    className="flex gap-3 rounded-2xl border border-border bg-card p-3"
                   >
                     <img
-                      src={item.image_url}
-                      alt={item.image_alt || item.name}
+                      src={productCover(item).url}
+                      alt={productCover(item).alt}
                       width={512}
                       height={512}
                       loading="lazy"
                       className="size-20 flex-none rounded-xl bg-muted object-cover"
                     />
                     <div className="flex flex-1 flex-col justify-between">
-                      <div>
-                        <span className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground">
-                          {item.brand}
-                        </span>
-                        <h2 className="text-sm font-semibold leading-snug">{item.name}</h2>
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <span className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground">
+                            {item.brand}
+                          </span>
+                          <h2 className="text-sm font-semibold leading-snug">{item.name}</h2>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeFromCart(item.id)}
+                          aria-label={`Remove ${item.name}`}
+                          className="text-muted-foreground transition-colors hover:text-destructive"
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-bold">{formatRwf(item.price)}</span>
+                        <span className="text-sm font-bold">{formatRwf(item.price * qty)}</span>
                         <div className="flex items-center gap-3">
                           <button
                             type="button"
                             aria-label={`Remove one ${item.name}`}
-                            onClick={() => setQty(item.id, -1)}
-                            disabled={qty === 0}
-                            className="flex size-8 items-center justify-center rounded-full border border-border disabled:opacity-30"
+                            onClick={() => setQty(item.id, qty - 1)}
+                            className="flex size-8 items-center justify-center rounded-full border border-border"
                           >
                             <Minus className="size-4" />
                           </button>
@@ -224,7 +241,7 @@ function OrderPage() {
                           <button
                             type="button"
                             aria-label={`Add one ${item.name}`}
-                            onClick={() => setQty(item.id, 1)}
+                            onClick={() => setQty(item.id, qty + 1)}
                             className="flex size-8 items-center justify-center rounded-full bg-foreground text-background"
                           >
                             <Plus className="size-4" strokeWidth={2.5} />
@@ -233,10 +250,11 @@ function OrderPage() {
                       </div>
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                ))}
+              </div>
+            )}
           </section>
+
 
           {/* Details */}
           <section>
