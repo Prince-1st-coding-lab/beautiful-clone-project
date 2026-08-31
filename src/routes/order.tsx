@@ -2,16 +2,30 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, Check, Copy, Loader2, Minus, Plus, ShieldCheck } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  Copy,
+  Loader2,
+  Minus,
+  Plus,
+  ShieldCheck,
+  ShoppingBag,
+  Trash2,
+} from "lucide-react";
 
 import {
   DELIVERY_FEE,
   formatRwf,
+  productCover,
   productsQueryOptions,
   WHATSAPP_NUMBER,
   WHATSAPP_URL,
+  type Product,
 } from "@/lib/catalog";
+import { useCart } from "@/lib/cart";
 import { placeOrder } from "@/lib/orders.functions";
+
 
 export const Route = createFileRoute("/order")({
   head: () => ({
