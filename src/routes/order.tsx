@@ -159,7 +159,10 @@ function OrderPage() {
           items: selected.map((l) => ({ product_id: l.item.id, quantity: l.qty })),
         },
       });
+      setPlacedLines(cartLines);
       setOrderRef(result.reference);
+      clearCart();
+
     } catch {
       setError("We could not save your order. Please try again.");
     } finally {
