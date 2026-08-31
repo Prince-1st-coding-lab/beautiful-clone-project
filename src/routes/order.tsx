@@ -68,8 +68,8 @@ const labelClass = "mb-1.5 block text-xs font-semibold uppercase tracking-wide t
 function OrderPage() {
   const { data: catalog = [], isLoading } = useQuery(productsQueryOptions);
   const submitOrder = useServerFn(placeOrder);
+  const { items, setQty, remove: removeFromCart, clear: clearCart } = useCart();
 
-  const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [district, setDistrict] = useState("");
@@ -80,22 +80,26 @@ function OrderPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [placedLines, setPlacedLines] = useState<{ item: Product; qty: number }[]>([]);
 
   const confirmed = orderRef !== "";
 
-  const selected = useMemo(
+  const cartLines = useMemo(
     () =>
-      catalog
-        .map((item) => ({ item, qty: quantities[item.id] ?? 0 }))
-        .filter((line) => line.qty > 0),
-    [catalog, quantities],
+      items
+        .map((line) => {
+          const item = catalog.find((p) => p.id === line.productId);
+          return item ? { item, qty: line.qty } : null;
+        })
+        .filter((line): line is { item: Product; qty: number } => line !== null),
+    [catalog, items],
   );
+
+  const selected = confirmed ? placedLines : cartLines;
 
   const subtotal = selected.reduce((sum, l) => sum + l.item.price * l.qty, 0);
   const total = subtotal > 0 ? subtotal + DELIVERY_FEE : 0;
 
-  const setQty = (id: string, delta: number) =>
-    setQuantities((q) => ({ ...q, [id]: Math.max(0, (q[id] ?? 0) + delta) }));
 
   const paymentLabel = paymentMethods.find((m) => m.id === payment)!.label;
 
