@@ -252,7 +252,13 @@ function Index() {
           <p className="text-[10px] uppercase tracking-tighter text-background/40">
             © 2026 Beautècosmetics Rwanda
           </p>
-          <div className="flex gap-4">
+          <div className="flex items-center gap-4">
+            <Link
+              to="/auth"
+              className="text-[10px] uppercase tracking-tighter text-background/40 transition-colors hover:text-background/80"
+            >
+              Staff
+            </Link>
             <div className="size-4 rounded-sm bg-background/30" />
             <div className="size-4 rounded-sm bg-background/30" />
           </div>
