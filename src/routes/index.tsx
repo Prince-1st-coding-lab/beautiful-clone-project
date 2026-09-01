@@ -72,25 +72,13 @@ const categories = [
 
 function Index() {
   const { data: products = [] } = useQuery(productsQueryOptions);
+  const [active, setActive] = useState<Product | null>(null);
 
   return (
 
     <div className="mx-auto min-h-screen max-w-3xl bg-background font-sans text-foreground">
-      {/* Top Bar */}
-      <nav className="sticky top-0 z-50 flex items-center justify-between border-b border-secondary bg-background/80 px-4 py-3 backdrop-blur-md">
-        <div className="flex items-center gap-2">
-          <div className="flex size-8 items-center justify-center overflow-hidden rounded-full border border-border bg-secondary">
-            <span className="font-serif text-xs font-bold italic text-primary">B</span>
-          </div>
-          <span className="font-serif text-lg font-bold tracking-tight">Beautè Rwanda</span>
-        </div>
-        <div className="flex items-center gap-4 text-muted-foreground">
-          <Search className="size-5" strokeWidth={2} />
-          <Link to="/order" aria-label="Go to order page">
-            <ShoppingBag className="size-5" strokeWidth={2} />
-          </Link>
-        </div>
-      </nav>
+      <SiteHeader />
+
 
       {/* Hero Section */}
       <section className="px-4 py-6">
