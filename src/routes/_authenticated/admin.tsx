@@ -387,6 +387,13 @@ function ProductsTab() {
                   onChange={(e) => setEditing({ ...editing, is_active: e.target.checked })} />
                 Show in the shop
               </label>
+              {editing.id ? (
+                <GalleryEditor productId={editing.id} />
+              ) : (
+                <p className="rounded-xl bg-muted p-3 text-xs text-muted-foreground">
+                  Save the product first to add extra slideshow images.
+                </p>
+              )}
               <button
                 type="button"
                 onClick={() => saveProduct.mutate(editing)}
@@ -400,6 +407,149 @@ function ProductsTab() {
         </div>
       )}
     </section>
+  );
+}
+
+function GalleryEditor({ productId }: { productId: string }) {
+  const queryClient = useQueryClient();
+  const [url, setUrl] = useState("");
+  const [alt, setAlt] = useState("");
+
+  const imagesQuery = useQuery({
+    queryKey: ["admin-product-images", productId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("product_images")
+        .select("id, image_url, image_alt, sort_order")
+        .eq("product_id", productId)
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ["admin-product-images", productId] });
+    queryClient.invalidateQueries({ queryKey: ["products", "active"] });
+  };
+
+  const addImage = useMutation({
+    mutationFn: async () => {
+      const nextOrder = (imagesQuery.data ?? []).length;
+      const { error } = await supabase.from("product_images").insert({
+        product_id: productId,
+        image_url: url.trim(),
+        image_alt: alt.trim(),
+        sort_order: nextOrder,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      setUrl("");
+      setAlt("");
+      invalidate();
+    },
+  });
+
+  const removeImage = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("product_images").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
+
+  const moveImage = useMutation({
+    mutationFn: async ({ index, dir }: { index: number; dir: -1 | 1 }) => {
+      const list = imagesQuery.data ?? [];
+      const target = list[index + dir];
+      const current = list[index];
+      if (!target || !current) return;
+      const a = await supabase
+        .from("product_images")
+        .update({ sort_order: target.sort_order })
+        .eq("id", current.id);
+      if (a.error) throw a.error;
+      const b = await supabase
+        .from("product_images")
+        .update({ sort_order: current.sort_order })
+        .eq("id", target.id);
+      if (b.error) throw b.error;
+    },
+    onSuccess: invalidate,
+  });
+
+  const images = imagesQuery.data ?? [];
+
+  return (
+    <div className="rounded-xl border border-border p-3">
+      <p className={labelClass}>Slideshow images</p>
+      {imagesQuery.isLoading && <Loader2 className="size-4 animate-spin text-primary" />}
+      <div className="flex flex-col gap-2">
+        {images.map((image, index) => (
+          <div key={image.id} className="flex items-center gap-2">
+            <img
+              src={image.image_url}
+              alt={image.image_alt || "Product image"}
+              className="size-10 flex-none rounded-lg bg-muted object-cover"
+            />
+            <span className="flex-1 truncate text-xs text-muted-foreground">{image.image_url}</span>
+            <button
+              type="button"
+              aria-label="Move image up"
+              disabled={index === 0}
+              onClick={() => moveImage.mutate({ index, dir: -1 })}
+              className="rounded-full border border-border px-2 py-1 text-xs disabled:opacity-30"
+            >
+              ↑
+            </button>
+            <button
+              type="button"
+              aria-label="Move image down"
+              disabled={index === images.length - 1}
+              onClick={() => moveImage.mutate({ index, dir: 1 })}
+              className="rounded-full border border-border px-2 py-1 text-xs disabled:opacity-30"
+            >
+              ↓
+            </button>
+            <button
+              type="button"
+              aria-label="Remove image"
+              onClick={() => removeImage.mutate(image.id)}
+              className="text-destructive"
+            >
+              <Trash2 className="size-4" />
+            </button>
+          </div>
+        ))}
+        {!imagesQuery.isLoading && images.length === 0 && (
+          <p className="text-xs text-muted-foreground">No extra images yet.</p>
+        )}
+      </div>
+
+      <div className="mt-3 space-y-2">
+        <input
+          className={inputClass}
+          value={url}
+          placeholder="Image URL"
+          onChange={(e) => setUrl(e.target.value)}
+        />
+        <input
+          className={inputClass}
+          value={alt}
+          placeholder="Image description"
+          onChange={(e) => setAlt(e.target.value)}
+        />
+        <button
+          type="button"
+          disabled={!url.trim() || addImage.isPending}
+          onClick={() => addImage.mutate()}
+          className="w-full rounded-full border border-border px-4 py-2 text-xs font-bold uppercase disabled:opacity-50"
+        >
+          Add image
+        </button>
+      </div>
+    </div>
   );
 }
 

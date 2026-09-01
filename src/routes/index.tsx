@@ -1,11 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { MapPin, Phone, Plus, Search, ShoppingBag } from "lucide-react";
+import { useState } from "react";
+import { MapPin, Phone } from "lucide-react";
 
 import heroImage from "@/assets/hero-skincare.jpg";
 import categorySkincare from "@/assets/category-skincare.jpg";
 import categoryMakeup from "@/assets/category-makeup.jpg";
-import { formatRwf, productsQueryOptions } from "@/lib/catalog";
+import { SiteHeader } from "@/components/SiteHeader";
+import { ProductCard } from "@/components/ProductCard";
+import { ProductDrawer } from "@/components/ProductDrawer";
+import { CartDrawer } from "@/components/CartDrawer";
+import { productsQueryOptions, type Product } from "@/lib/catalog";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -67,25 +72,13 @@ const categories = [
 
 function Index() {
   const { data: products = [] } = useQuery(productsQueryOptions);
+  const [active, setActive] = useState<Product | null>(null);
 
   return (
 
     <div className="mx-auto min-h-screen max-w-3xl bg-background font-sans text-foreground">
-      {/* Top Bar */}
-      <nav className="sticky top-0 z-50 flex items-center justify-between border-b border-secondary bg-background/80 px-4 py-3 backdrop-blur-md">
-        <div className="flex items-center gap-2">
-          <div className="flex size-8 items-center justify-center overflow-hidden rounded-full border border-border bg-secondary">
-            <span className="font-serif text-xs font-bold italic text-primary">B</span>
-          </div>
-          <span className="font-serif text-lg font-bold tracking-tight">Beautè Rwanda</span>
-        </div>
-        <div className="flex items-center gap-4 text-muted-foreground">
-          <Search className="size-5" strokeWidth={2} />
-          <Link to="/order" aria-label="Go to order page">
-            <ShoppingBag className="size-5" strokeWidth={2} />
-          </Link>
-        </div>
-      </nav>
+      <SiteHeader />
+
 
       {/* Hero Section */}
       <section className="px-4 py-6">
@@ -107,7 +100,7 @@ function Index() {
               <span className="italic">Delivered Locally.</span>
             </h1>
             <Link
-              to="/order"
+              to="/shop"
               className="w-fit rounded-full bg-white px-6 py-3 text-sm font-semibold text-primary shadow-lg transition-transform active:scale-95"
             >
               Shop Now
@@ -139,7 +132,7 @@ function Index() {
             </p>
           </div>
           <Link
-            to="/order"
+            to="/shop"
             className="border-b border-primary/20 pb-0.5 text-xs font-semibold text-primary"
           >
             View All
@@ -173,44 +166,22 @@ function Index() {
           </p>
         </div>
 
-        <div className="flex flex-col gap-6 px-4">
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="flex gap-4 rounded-2xl border border-border bg-card p-3 shadow-sm"
-            >
-              <img
-                src={product.image_url}
-                alt={product.image_alt || product.name}
-                width={512}
-                height={512}
-                loading="lazy"
-                className="size-24 flex-none rounded-xl bg-muted object-cover"
-              />
-              <div className="flex flex-1 flex-col justify-between py-1">
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-tighter text-primary">
-                    {product.brand}
-                  </span>
-                  <h3 className="text-sm font-semibold leading-snug">{product.name}</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">{product.description}</p>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold">{formatRwf(product.price)}</span>
-
-                  <Link
-                    to="/order"
-                    aria-label={`Order ${product.name}`}
-                    className="flex size-8 items-center justify-center rounded-full bg-foreground text-background"
-                  >
-                    <Plus className="size-4" strokeWidth={2.5} />
-                  </Link>
-                </div>
-              </div>
-            </div>
+        <div className="grid grid-cols-2 gap-4 px-4">
+          {products.slice(0, 4).map((product) => (
+            <ProductCard key={product.id} product={product} onOpen={setActive} />
           ))}
         </div>
+
+        <div className="mt-6 px-4">
+          <Link
+            to="/shop"
+            className="flex w-full items-center justify-center rounded-full border border-border bg-background px-6 py-3 text-sm font-semibold"
+          >
+            View all products
+          </Link>
+        </div>
       </section>
+
 
       {/* Wholesale & Retail CTA */}
       <section className="px-4 py-12 text-center">
@@ -222,7 +193,7 @@ function Index() {
             business.
           </p>
           <Link
-            to="/order"
+            to="/shop"
             className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-3 text-sm font-bold uppercase tracking-wide text-primary"
           >
             Shop Now
@@ -277,6 +248,9 @@ function Index() {
           <WhatsAppIcon className="size-6" />
         </a>
       </div>
+
+      <ProductDrawer product={active} onClose={() => setActive(null)} />
+      <CartDrawer />
     </div>
   );
 }
