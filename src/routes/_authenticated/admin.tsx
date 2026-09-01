@@ -387,6 +387,13 @@ function ProductsTab() {
                   onChange={(e) => setEditing({ ...editing, is_active: e.target.checked })} />
                 Show in the shop
               </label>
+              {editing.id ? (
+                <GalleryEditor productId={editing.id} />
+              ) : (
+                <p className="rounded-xl bg-muted p-3 text-xs text-muted-foreground">
+                  Save the product first to add extra slideshow images.
+                </p>
+              )}
               <button
                 type="button"
                 onClick={() => saveProduct.mutate(editing)}
