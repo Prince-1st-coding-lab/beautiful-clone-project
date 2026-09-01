@@ -100,7 +100,7 @@ function Index() {
               <span className="italic">Delivered Locally.</span>
             </h1>
             <Link
-              to="/order"
+              to="/shop"
               className="w-fit rounded-full bg-white px-6 py-3 text-sm font-semibold text-primary shadow-lg transition-transform active:scale-95"
             >
               Shop Now
@@ -132,7 +132,7 @@ function Index() {
             </p>
           </div>
           <Link
-            to="/order"
+            to="/shop"
             className="border-b border-primary/20 pb-0.5 text-xs font-semibold text-primary"
           >
             View All
@@ -193,7 +193,7 @@ function Index() {
             business.
           </p>
           <Link
-            to="/order"
+            to="/shop"
             className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-3 text-sm font-bold uppercase tracking-wide text-primary"
           >
             Shop Now
