@@ -465,13 +465,16 @@ function GalleryEditor({ productId }: { productId: string }) {
       const target = list[index + dir];
       const current = list[index];
       if (!target || !current) return;
-      const { error } = await supabase
+      const a = await supabase
         .from("product_images")
-        .upsert([
-          { id: current.id, sort_order: target.sort_order },
-          { id: target.id, sort_order: current.sort_order },
-        ]);
-      if (error) throw error;
+        .update({ sort_order: target.sort_order })
+        .eq("id", current.id);
+      if (a.error) throw a.error;
+      const b = await supabase
+        .from("product_images")
+        .update({ sort_order: current.sort_order })
+        .eq("id", target.id);
+      if (b.error) throw b.error;
     },
     onSuccess: invalidate,
   });
