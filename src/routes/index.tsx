@@ -248,6 +248,9 @@ function Index() {
           <WhatsAppIcon className="size-6" />
         </a>
       </div>
+
+      <ProductDrawer product={active} onClose={() => setActive(null)} />
+      <CartDrawer />
     </div>
   );
 }
