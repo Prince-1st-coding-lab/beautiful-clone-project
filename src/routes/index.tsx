@@ -1,11 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { MapPin, Phone, Plus, Search, ShoppingBag } from "lucide-react";
+import { useState } from "react";
+import { MapPin, Phone } from "lucide-react";
 
 import heroImage from "@/assets/hero-skincare.jpg";
 import categorySkincare from "@/assets/category-skincare.jpg";
 import categoryMakeup from "@/assets/category-makeup.jpg";
-import { formatRwf, productsQueryOptions } from "@/lib/catalog";
+import { SiteHeader } from "@/components/SiteHeader";
+import { ProductCard } from "@/components/ProductCard";
+import { ProductDrawer } from "@/components/ProductDrawer";
+import { CartDrawer } from "@/components/CartDrawer";
+import { productsQueryOptions, type Product } from "@/lib/catalog";
 
 export const Route = createFileRoute("/")({
   head: () => ({
