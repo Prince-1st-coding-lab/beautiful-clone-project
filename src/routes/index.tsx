@@ -166,44 +166,22 @@ function Index() {
           </p>
         </div>
 
-        <div className="flex flex-col gap-6 px-4">
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="flex gap-4 rounded-2xl border border-border bg-card p-3 shadow-sm"
-            >
-              <img
-                src={product.image_url}
-                alt={product.image_alt || product.name}
-                width={512}
-                height={512}
-                loading="lazy"
-                className="size-24 flex-none rounded-xl bg-muted object-cover"
-              />
-              <div className="flex flex-1 flex-col justify-between py-1">
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-tighter text-primary">
-                    {product.brand}
-                  </span>
-                  <h3 className="text-sm font-semibold leading-snug">{product.name}</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">{product.description}</p>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold">{formatRwf(product.price)}</span>
-
-                  <Link
-                    to="/order"
-                    aria-label={`Order ${product.name}`}
-                    className="flex size-8 items-center justify-center rounded-full bg-foreground text-background"
-                  >
-                    <Plus className="size-4" strokeWidth={2.5} />
-                  </Link>
-                </div>
-              </div>
-            </div>
+        <div className="grid grid-cols-2 gap-4 px-4">
+          {products.slice(0, 4).map((product) => (
+            <ProductCard key={product.id} product={product} onOpen={setActive} />
           ))}
         </div>
+
+        <div className="mt-6 px-4">
+          <Link
+            to="/shop"
+            className="flex w-full items-center justify-center rounded-full border border-border bg-background px-6 py-3 text-sm font-semibold"
+          >
+            View all products
+          </Link>
+        </div>
       </section>
+
 
       {/* Wholesale & Retail CTA */}
       <section className="px-4 py-12 text-center">
